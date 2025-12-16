@@ -3,158 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love Error</title>
+<title>Love Fireworks</title>
 
 <style>
 body{
     margin:0;
     height:100vh;
-    background:radial-gradient(circle,#ff4d6d,#c9184a);
+    background:linear-gradient(180deg,#ff3b6f,#ff6b8a);
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
     font-family:Arial,sans-serif;
     color:white;
-    text-align:center;
     overflow:hidden;
+    text-align:center;
 }
 
-/* WRAPPER */
-.wrap{
+/* HEART BIG */
+.big-heart{
     position:relative;
-    width:220px;
-    height:220px;
-}
-
-/* HEART */
-.heart{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:160px;
-    height:160px;
+    width:260px;
+    height:260px;
     background:#ff1e56;
-    transform:translate(-50%,-50%) rotate(-45deg);
-    animation:beat 1s infinite;
-    z-index:1;
+    transform:rotate(-45deg);
+    animation:pulse 1.2s infinite;
+    box-shadow:0 0 40px rgba(255,255,255,.35);
 }
-.heart::before,.heart::after{
+.big-heart::before,
+.big-heart::after{
     content:"";
     position:absolute;
-    width:160px;
-    height:160px;
+    width:260px;
+    height:260px;
     background:#ff1e56;
     border-radius:50%;
 }
-.heart::before{top:-80px;left:0;}
-.heart::after{left:80px;top:0;}
+.big-heart::before{top:-130px;left:0;}
+.big-heart::after{left:130px;top:0;}
 
-/* TEXT ABOVE */
-.label{
+/* TEXT ON HEART */
+.center-text{
     position:absolute;
     top:50%;
     left:50%;
-    transform:translate(-50%,-50%);
+    transform:translate(-50%,-50%) rotate(45deg);
+    font-size:30px;
+    font-weight:900;
+    text-shadow:0 0 20px rgba(255,255,255,1);
     z-index:10;
-    font-size:22px;
-    font-weight:800;
-    text-shadow:0 0 12px rgba(255,255,255,.9);
     pointer-events:none;
+    line-height:1.2;
 }
 
-/* STATUS */
-.status{
-    margin-top:20px;
-    font-size:18px;
-    min-height:24px;
-    opacity:.9;
+/* MESSAGE */
+.message{
+    margin-top:40px;
+    font-size:20px;
+    opacity:.95;
+    animation:fadeUp 1.2s ease forwards;
 }
 
-/* LOADING BAR */
-.loading{
-    width:200px;
-    height:8px;
-    background:rgba(255,255,255,.3);
-    border-radius:4px;
-    overflow:hidden;
-    margin-top:12px;
-    display:none;
-}
-.loading span{
-    display:block;
-    height:100%;
-    width:0;
-    background:white;
+/* FIREWORK HEART */
+.firework{
+    position:fixed;
+    font-size:22px;
+    pointer-events:none;
+    animation:explode 1.8s ease-out forwards;
 }
 
-/* STATES */
-.stop{animation:none;}
-.hidden{display:none;}
+/* ANIMATIONS */
+@keyframes pulse{
+    0%{transform:rotate(-45deg) scale(1);}
+    50%{transform:rotate(-45deg) scale(1.08);}
+    100%{transform:rotate(-45deg) scale(1);}
+}
 
-@keyframes beat{
-    0%{transform:translate(-50%,-50%) rotate(-45deg) scale(1);}
-    50%{transform:translate(-50%,-50%) rotate(-45deg) scale(1.1);}
-    100%{transform:translate(-50%,-50%) rotate(-45deg) scale(1);}
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(20px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+@keyframes explode{
+    0%{
+        transform:translate(0,0) scale(.8);
+        opacity:1;
+    }
+    100%{
+        transform:translate(var(--x),var(--y)) scale(1.8);
+        opacity:0;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
-    <div class="heart" id="heart"></div>
-    <div class="label" id="label">Syifa</div>
+<div class="big-heart">
+    <div class="center-text">
+        I Love<br>You ❤️
+    </div>
 </div>
 
-<div class="status" id="status">Tap love-nya ❤️</div>
-<div class="loading" id="loading"><span id="bar"></span></div>
+<div class="message">
+    Ternyata cuma KANGEN kamu 🥺
+</div>
 
 <script>
-const heart = document.getElementById("heart");
-const label = document.getElementById("label");
-const status = document.getElementById("status");
-const loading = document.getElementById("loading");
-const bar = document.getElementById("bar");
+const emojis = ["❤️","💖","💗","💕","💘","💓"];
 
-let step = 0;
+function fireworks(){
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
-document.body.addEventListener("click", ()=>{
-    if(step!==0) return;
-    step = 1;
+    for(let i=0;i<20;i++){
+        const fw = document.createElement("div");
+        fw.className = "firework";
+        fw.innerText = emojis[Math.floor(Math.random()*emojis.length)];
 
-    // STEP 1: ERROR
-    heart.classList.add("stop");
-    label.innerText = "ERROR 💔";
-    status.innerText = "SYSTEM ERROR\nHati tidak merespon…";
-    loading.style.display = "block";
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random()*160;
 
-    // STEP 2: LOADING
-    let progress = 0;
-    const interval = setInterval(()=>{
-        progress += 5;
-        bar.style.width = progress + "%";
+        fw.style.left = centerX + "px";
+        fw.style.top  = centerY + "px";
+        fw.style.setProperty("--x", Math.cos(angle)*distance + "px");
+        fw.style.setProperty("--y", Math.sin(angle)*distance + "px");
 
-        if(progress >= 100){
-            clearInterval(interval);
+        document.body.appendChild(fw);
+        setTimeout(()=>fw.remove(),1800);
+    }
+}
 
-            // STEP 3: MATI
-            status.innerText = "Gagal… 💔";
-            heart.style.opacity = 0.3;
-
-            // STEP 4: HIDUP LAGI
-            setTimeout(()=>{
-                heart.style.opacity = 1;
-                heart.classList.remove("stop");
-                label.innerText = "I Love You ❤️";
-                status.innerText = "Ternyata cuma kangen kamu 🥺";
-                loading.style.display = "none";
-            }, 1200);
-        }
-    }, 120);
-});
+// continuous fireworks
+setInterval(fireworks, 1200);
+fireworks();
 </script>
 
 </body>
 </html>
-
