@@ -3,68 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love Fireworks</title>
+<title>Love Error</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
 
 <style>
 body{
     margin:0;
     height:100vh;
-    background:linear-gradient(180deg,#ff3b6f,#ff6b8a);
+    background:radial-gradient(circle,#ff4d6d,#c9184a);
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
-    font-family:Arial,sans-serif;
+    font-family:'Poppins',sans-serif;
     color:white;
-    overflow:hidden;
     text-align:center;
+    overflow:hidden;
 }
 
-/* HEART BIG */
-.big-heart{
+/* WRAPPER */
+.wrap{
     position:relative;
-    width:260px;
-    height:260px;
-    background:#ff1e56;
-    transform:rotate(-45deg);
-    animation:pulse 1.2s infinite;
-    box-shadow:0 0 40px rgba(255,255,255,.35);
+    width:240px;
+    height:240px;
 }
-.big-heart::before,
-.big-heart::after{
-    content:"";
-    position:absolute;
-    width:260px;
-    height:260px;
-    background:#ff1e56;
-    border-radius:50%;
-}
-.big-heart::before{top:-130px;left:0;}
-.big-heart::after{left:130px;top:0;}
 
-/* TEXT ON HEART */
-.center-text{
+/* HEART */
+.heart{
     position:absolute;
     top:50%;
     left:50%;
-    transform:translate(-50%,-50%) rotate(45deg);
-    font-size:30px;
-    font-weight:900;
-    text-shadow:0 0 20px rgba(255,255,255,1);
+    width:180px;
+    height:180px;
+    background:#ff1e56;
+    transform:translate(-50%,-50%) rotate(-45deg);
+    animation:beat 1s infinite;
+    z-index:1;
+}
+.heart::before,.heart::after{
+    content:"";
+    position:absolute;
+    width:180px;
+    height:180px;
+    background:#ff1e56;
+    border-radius:50%;
+}
+.heart::before{top:-90px;left:0;}
+.heart::after{left:90px;top:0;}
+
+/* TEXT CENTER (RAPI & SEJAJAR) */
+.label{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
     z-index:10;
+    font-size:28px;
+    font-weight:800;
+    line-height:1.1;
+    text-align:center;
+    text-shadow:0 0 18px rgba(255,255,255,1);
     pointer-events:none;
-    line-height:1.2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-/* MESSAGE */
-.message{
-    margin-top:40px;
-    font-size:20px;
+/* STATUS */
+.status{
+    margin-top:24px;
+    font-size:18px;
+    min-height:26px;
     opacity:.95;
-    animation:fadeUp 1.2s ease forwards;
 }
 
-/* FIREWORK HEART */
+/* LOADING BAR */
+.loading{
+    width:220px;
+    height:8px;
+    background:rgba(255,255,255,.3);
+    border-radius:4px;
+    overflow:hidden;
+    margin-top:14px;
+    display:none;
+}
+.loading span{
+    display:block;
+    height:100%;
+    width:0;
+    background:white;
+}
+
+/* CREDIT */
+.credit{
+    position:fixed;
+    bottom:12px;
+    font-size:12px;
+    opacity:.6;
+    letter-spacing:1px;
+}
+
+/* FIREWORK */
 .firework{
     position:fixed;
     font-size:22px;
@@ -72,24 +113,21 @@ body{
     animation:explode 1.8s ease-out forwards;
 }
 
-/* ANIMATIONS */
-@keyframes pulse{
-    0%{transform:rotate(-45deg) scale(1);}
-    50%{transform:rotate(-45deg) scale(1.08);}
-    100%{transform:rotate(-45deg) scale(1);}
-}
+/* STATES */
+.stop{animation:none;}
 
-@keyframes fadeUp{
-    from{opacity:0;transform:translateY(20px);}
-    to{opacity:1;transform:translateY(0);}
+@keyframes beat{
+    0%{transform:translate(-50%,-50%) rotate(-45deg) scale(1);}
+    50%{transform:translate(-50%,-50%) rotate(-45deg) scale(1.1);}
+    100%{transform:translate(-50%,-50%) rotate(-45deg) scale(1);}
 }
 
 @keyframes explode{
-    0%{
+    from{
         transform:translate(0,0) scale(.8);
         opacity:1;
     }
-    100%{
+    to{
         transform:translate(var(--x),var(--y)) scale(1.8);
         opacity:0;
     }
@@ -99,44 +137,84 @@ body{
 
 <body>
 
-<div class="big-heart">
-    <div class="center-text">
-        I Love<br>You ❤️
-    </div>
+<div class="wrap">
+    <div class="heart" id="heart"></div>
+    <div class="label" id="label">Syifa</div>
 </div>
 
-<div class="message">
-    Ternyata cuma KANGEN kamu 🥺
-</div>
+<div class="status" id="status">Tap love-nya ❤️</div>
+<div class="loading" id="loading"><span id="bar"></span></div>
+
+<div class="credit">dev by Tuan Muda R</div>
 
 <script>
+const heart = document.getElementById("heart");
+const label = document.getElementById("label");
+const status = document.getElementById("status");
+const loading = document.getElementById("loading");
+const bar = document.getElementById("bar");
+
 const emojis = ["❤️","💖","💗","💕","💘","💓"];
+let step = 0;
 
 function fireworks(){
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
 
-    for(let i=0;i<20;i++){
+    for(let i=0;i<18;i++){
         const fw = document.createElement("div");
         fw.className = "firework";
         fw.innerText = emojis[Math.floor(Math.random()*emojis.length)];
 
-        const angle = Math.random() * Math.PI * 2;
-        const distance = 80 + Math.random()*160;
+        const angle = Math.random()*Math.PI*2;
+        const dist = 80 + Math.random()*160;
 
-        fw.style.left = centerX + "px";
-        fw.style.top  = centerY + "px";
-        fw.style.setProperty("--x", Math.cos(angle)*distance + "px");
-        fw.style.setProperty("--y", Math.sin(angle)*distance + "px");
+        fw.style.left = cx+"px";
+        fw.style.top  = cy+"px";
+        fw.style.setProperty("--x", Math.cos(angle)*dist+"px");
+        fw.style.setProperty("--y", Math.sin(angle)*dist+"px");
 
         document.body.appendChild(fw);
         setTimeout(()=>fw.remove(),1800);
     }
 }
 
-// continuous fireworks
-setInterval(fireworks, 1200);
-fireworks();
+document.body.addEventListener("click", ()=>{
+    if(step!==0) return;
+    step = 1;
+
+    // ERROR
+    heart.classList.add("stop");
+    label.innerText = "ERROR 💔";
+    status.innerText = "SYSTEM ERROR\nHati tidak merespon…";
+    loading.style.display = "block";
+
+    let progress = 0;
+    const interval = setInterval(()=>{
+        progress += 5;
+        bar.style.width = progress + "%";
+
+        if(progress >= 100){
+            clearInterval(interval);
+
+            status.innerText = "Gagal… 💔";
+            heart.style.opacity = 0.3;
+
+            setTimeout(()=>{
+                heart.style.opacity = 1;
+                heart.classList.remove("stop");
+                label.innerHTML = "I Love<br>You ❤️";
+                status.innerText = "Ternyata cuma kangen kamu 🥺";
+                loading.style.display = "none";
+
+                // FIREWORKS
+                fireworks();
+                setInterval(fireworks, 1400);
+
+            }, 1200);
+        }
+    }, 120);
+});
 </script>
 
 </body>
